@@ -15,6 +15,10 @@ import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateCusto
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateSessionModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.IdentifyModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.InitialModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.RevokeConsentParamModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.SetConsentParamModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.SetConsentResponseModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateConsentParamModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.services.helper.DateHelper
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.services.helper.JsonHelper
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.services.Log.mLog
@@ -185,6 +189,47 @@ class Mkt {
         fun consent(callback: MktCallBack<List<Map<String, Any>>>?): Unit {
             val param = ConsentParamModel(cookie = PrefHelper.getPref("cookie") ?: "")
             sysMkt.getConsent(param, callback)
+        }
+
+        fun setConsent(
+            consentName: String, action: String, actionTime: Date, validUntil: Date?,
+            callback: MktCallBack<String>,
+        ): Unit {
+            SetConsentParamModel(
+                cookie = PrefHelper.getPref("cookie") ?: "",
+                consentName = consentName,
+                action = action,
+                actionTime = actionTime,
+                validUntil = validUntil,
+            ).let { sysMkt.setConsent(it, callback) }
+        }
+
+        fun updateConsent(
+            consentId: String,
+            consentName: String,
+            action: String,
+            actionTime: Date,
+            validUntil: Date?,
+            callback: MktCallBack<String>,
+        ): Unit {
+            UpdateConsentParamModel(
+                cookie = PrefHelper.getPref("cookie") ?: "",
+                consentId = consentId,
+                consentName = consentName,
+                action = action,
+                actionTime = actionTime,
+                validUntil = validUntil,
+            ).let { sysMkt.updateConsent(it, callback) }
+        }
+
+        fun revokeConsent(
+            consentId: String,
+            callback: MktCallBack<String?>,
+        ): Unit {
+            RevokeConsentParamModel(
+                cookie = PrefHelper.getPref("cookie") ?: "",
+                consentId = consentId,
+            ).let { sysMkt.revokeConsent(it, callback) }
         }
     }
 
@@ -483,6 +528,110 @@ class Mkt {
             override fun onFailure(call: Call<ConsentResponseModel>, t: Throwable) {
                 Log.d(mTag.Track, "consent failed : ${t.message}")
                 callback?.onFailed("consent failed : ${t.message}")
+            }
+        })
+    }
+
+    private fun setConsent(
+        param: SetConsentParamModel,
+        callback: MktCallBack<String>?,
+    ) {
+        val urlPath = getUrlProj()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(urlPath)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        val call = retrofit.setConsent(sysMkt.appKey!!, param)
+        call.enqueue(object : Callback<SetConsentResponseModel> {
+            override fun onResponse(
+                call: Call<SetConsentResponseModel>,
+                response: Response<SetConsentResponseModel>,
+            ) {
+                if (response.isSuccessful) {
+                    val res = response.body()!!
+                    Log.d(mTag.Track, "consent success")
+                    callback?.onSuccess(res.consentId)
+                } else {
+                    Log.d(mTag.Track, "consent failed : ${response.code()}")
+                    callback?.onFailed("consent failed : ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<SetConsentResponseModel>, t: Throwable) {
+                Log.d(mTag.Track, "consent failed : ${t.message}")
+                callback?.onFailed("consent failed : ${t.message}")
+            }
+        })
+    }
+
+    private fun updateConsent(
+        param: UpdateConsentParamModel,
+        callback: MktCallBack<String>?,
+    ) {
+        val urlPath = getUrlProj()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(urlPath)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        val call = retrofit.updateConsent(sysMkt.appKey!!, param)
+        call.enqueue(object : Callback<SetConsentResponseModel> {
+            override fun onResponse(
+                call: Call<SetConsentResponseModel>,
+                response: Response<SetConsentResponseModel>,
+            ) {
+                if (response.isSuccessful) {
+                    val res = response.body()!!
+                    Log.d(mTag.Track, "consent success")
+                    callback?.onSuccess(res.consentId)
+                } else {
+                    Log.d(mTag.Track, "consent failed : ${response.code()}")
+                    callback?.onFailed("consent failed : ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<SetConsentResponseModel>, t: Throwable) {
+                Log.d(mTag.Track, "consent failed : ${t.message}")
+                callback?.onFailed("consent failed : ${t.message}")
+            }
+        })
+    }
+
+    private fun revokeConsent(
+        param: RevokeConsentParamModel,
+        callback: MktCallBack<String?>?,
+    ): Unit {
+        val urlPath = getUrlProj()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(urlPath)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        val call = retrofit.revokeConsent(sysMkt.appKey!!, param)
+        call.enqueue(object : Callback<Unit> {
+            override fun onResponse(
+                call: Call<Unit>,
+                response: Response<Unit>,
+            ) {
+                if (response.isSuccessful) {
+                    mLog.track(true, null)
+                    callback?.onSuccess("revoke success")
+                } else {
+                    mLog.track(false, response.code().toString())
+                    callback?.onFailed("revoke failed : ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                mLog.track(false, t.message)
+                callback?.onFailed("revoke failed : ${t.message}")
             }
         })
     }

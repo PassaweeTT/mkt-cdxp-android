@@ -36,7 +36,7 @@ data class InitialModel(
     val data: Map<String, Any>?,
     val session: SessionModel,
     val auto: Boolean,
-    val visit : Boolean
+    val visit: Boolean,
 )
 
 data class SessionModel(
@@ -86,6 +86,35 @@ data class IdentifyModel(
 data class ConsentParamModel(
     val cookie: String,
 )
+
 data class ConsentResponseModel(
-    val customerConsent: List<Map<String, Any>>
+    val customerConsent: List<Map<String, Any>>,
 )
+
+data class SetConsentParamModel(
+    val cookie: String,
+    val consentName: String,
+    val action: String,
+    val actionTime: Date,
+    val validUntil: Date?,
+)
+
+data class UpdateConsentParamModel(
+    val cookie: String,
+    val consentId: String,
+    val consentName: String,
+    val action: String,
+    val actionTime: Date,
+    val validUntil: Date?,
+)
+
+data class SetConsentResponseModel(
+    val message: String,
+    val consentId: String,
+)
+
+data class RevokeConsentParamModel(
+    val cookie: String,
+    val consentId: String,
+)
+

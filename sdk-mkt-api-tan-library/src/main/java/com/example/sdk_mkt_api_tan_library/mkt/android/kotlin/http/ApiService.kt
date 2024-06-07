@@ -4,9 +4,13 @@ import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.ConsentPara
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.ConsentResponseModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.IdentifyModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.InitialModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.RevokeConsentParamModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.SessionModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.SetConsentParamModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.SetConsentResponseModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.SystemTimeModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.TrackParamModel
+import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateConsentParamModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateCustResModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateCustomerModel
 import com.example.sdk_mkt_api_tan_library.mkt.android.kotlin.models.UpdateSessionModel
@@ -64,4 +68,22 @@ interface ApiService {
         @Header("secret-key") appKey: String,
         @Body param: ConsentParamModel,
     ): Call<ConsentResponseModel>
+
+    @POST("add-consent")
+    fun setConsent(
+        @Header("secret-key") appKey: String,
+        @Body param: SetConsentParamModel,
+    ): Call<SetConsentResponseModel>
+
+    @POST("update-consent")
+    fun updateConsent(
+        @Header("secret-key") appKey: String,
+        @Body param: UpdateConsentParamModel,
+    ): Call<SetConsentResponseModel>
+
+    @POST("delete-consent")
+    fun revokeConsent(
+        @Header("secret-key") appKey: String,
+        @Body param: RevokeConsentParamModel,
+    ): Call<Unit>
 }
