@@ -2,6 +2,7 @@ package com.example.myapplication.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import com.example.myapplication.R
 import com.example.myapplication.activity.Helper.Dialog
@@ -49,6 +50,34 @@ class MainActivity : AppCompatActivity() {
         val btnConsent: Button = findViewById(R.id.btnConsent)
         btnConsent.setOnClickListener {
             Mkt.consent(consentCallback)
+        }
+
+        val btnSetConsent: Button = findViewById(R.id.setConsent)
+        btnSetConsent.setOnClickListener {
+            Mkt.setConsent(
+                consentName = "cookie",
+                action = "accept",
+                actionTime = Date(), null, actionConsentCallback
+            )
+        }
+
+        val consentId = "66666d0d6d75dfdbbd50de77"
+        val btnUpdateConsent: Button = findViewById(R.id.updateConsent)
+        btnUpdateConsent.setOnClickListener {
+            Mkt.updateConsent(
+                consentId = consentId,
+                consentName = "cookie",
+                action = "reject",
+                actionTime = Date(), null, actionConsentCallback
+            )
+        }
+
+        val btnRevokeConsent: Button = findViewById(R.id.revokeConsent)
+        btnRevokeConsent.setOnClickListener {
+            Mkt.revokeConsent(
+                consentId = consentId,
+                callback = revokeConsentCallback,
+            )
         }
 
         val btnLogin: Button = findViewById(R.id.btnLogin)
@@ -130,6 +159,26 @@ class MainActivity : AppCompatActivity() {
                 "Consent Failed",
                 "Error : $messageError"
             )
+        }
+    }
+
+    private val actionConsentCallback = object : MktCallBack<String> {
+        override fun onSuccess(result: String) {
+            Log.d("consent", result)
+        }
+
+        override fun onFailed(messageError: String) {
+            Log.d("consent", messageError)
+        }
+    }
+
+    private val revokeConsentCallback = object : MktCallBack<String?> {
+        override fun onSuccess(result: String?) {
+            Log.d("consent", result ?: "")
+        }
+
+        override fun onFailed(messageError: String) {
+            Log.d("consent", messageError)
         }
     }
 

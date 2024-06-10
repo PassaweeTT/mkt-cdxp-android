@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">myApplication</string>
+    <string name="delete">Delete</string>
+    <string name="update">Update</string>
+    <string name="set">Set</string>
+    <string name="revoke">revoke</string>
 </resources>

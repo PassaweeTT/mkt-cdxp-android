@@ -81,7 +81,7 @@ interface ApiService {
         @Body param: UpdateConsentParamModel,
     ): Call<SetConsentResponseModel>
 
-    @POST("delete-consent")
+    @POST("revoke-consent")
     fun revokeConsent(
         @Header("secret-key") appKey: String,
         @Body param: RevokeConsentParamModel,
