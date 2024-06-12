@@ -26,6 +26,8 @@ interface ApiService {
     @GET("system-time")
     fun getSystemTime(): Call<SystemTimeModel>
 
+    @GET("page-visit")
+    fun pageVisit(): Call<Unit>
 
     @POST("initialize")
     fun initialize(

@@ -90,6 +90,7 @@ class Mkt {
                 generalMap.putAll(defaultPropertiesMap)
 
                 sysMkt.defaultProperties = generalMap
+                initialize(null)
             } else {
                 Log.d(mTag.Mkt, "config file not found")
                 throw Exception("config file not found")
@@ -99,7 +100,7 @@ class Mkt {
         }
 
         fun initialize(callback: MktCallBack<String>?): Unit {
-            var param = InitialModel(
+            val param = InitialModel(
                 projId = sysMkt.projId!!,
                 hardId = "",
                 referrer = sysMkt.referrer,
@@ -121,6 +122,10 @@ class Mkt {
 
         fun systemTime(callback: MktCallBack<Date?>): Unit {
             sysMkt.getSystemTime(callback)
+        }
+
+        fun pageVisit(callback: MktCallBack<String?>): Unit {
+            sysMkt.trackPageVisit(callback)
         }
 
         fun track(
@@ -246,17 +251,40 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     val systemTimeModel = response.body()
-                    mLog.systemTime(true, null)
                     callback.onSuccess(systemTimeModel?.dateTime)
                 } else {
-                    mLog.systemTime(false, response.code().toString())
                     callback.onFailed("system time failed: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<SystemTimeModel>, t: Throwable) {
-                mLog.systemTime(false, t.message)
                 callback.onFailed("system time failed : ${t.message}")
+            }
+        })
+    }
+
+    private fun trackPageVisit(callback: MktCallBack<String?>): Unit {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(sysMkt.urlEndPoint)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        val call = retrofit.pageVisit()
+        call.enqueue(object : Callback<Unit> {
+            override fun onResponse(
+                call: Call<Unit>,
+                response: Response<Unit>,
+            ) {
+                if (response.isSuccessful) {
+                    callback.onSuccess("track page-visit success")
+                } else {
+                    callback.onFailed("track page-visit success: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                callback.onFailed("track page-visit success : ${t.message}")
             }
         })
 
@@ -297,17 +325,17 @@ class Mkt {
                         setTimerUpdateSession(60000)
                     }
 
-                    mLog.init(true, null)
+//                    mLog.init(true, null)
                     callback?.onSuccess("init success")
                 } else {
                     callback?.onFailed("init : ${response.code()}")
-                    mLog.init(false, response.code().toString())
+//                    mLog.init(false, response.code().toString())
                 }
             }
 
             override fun onFailure(call: Call<InitialModel>, t: Throwable) {
                 callback?.onFailed("init failed : ${t.message}")
-                mLog.init(false, t.message)
+//                mLog.init(false, t.message)
             }
         })
 
@@ -329,16 +357,16 @@ class Mkt {
                 response: Response<Unit>,
             ) {
                 if (response.isSuccessful) {
-                    mLog.track(true, null)
+//                    mLog.track(true, null)
                     callback?.onSuccess("track success ${response.body()} ${eventParam.eventName}")
                 } else {
-                    mLog.track(false, response.code().toString())
+//                    mLog.track(false, response.code().toString())
                     callback?.onFailed("track failed ${eventParam.eventName}: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
-                mLog.track(false, t.message)
+//                mLog.track(false, t.message)
                 callback?.onFailed("track failed ${eventParam.eventName}: ${t.message}")
             }
         })
@@ -380,16 +408,16 @@ class Mkt {
                 response: Response<Unit>,
             ) {
                 if (response.isSuccessful) {
-                    Log.d(mTag.Track, "updateSession success : ${Date()}")
+//                    Log.d(mTag.Track, "updateSession success : ${Date()}")
                     PrefHelper.setPref("sessionLast", DateHelper.convertDateToString(Date()))
 
                 } else {
-                    Log.d(mTag.Track, "updateSession failed : ${response.code()}")
+//                    Log.d(mTag.Track, "updateSession failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
-                Log.d(mTag.Track, "updateSession failed : ${t.message}")
+//                Log.d(mTag.Track, "updateSession failed : ${t.message}")
             }
         })
     }
@@ -410,16 +438,16 @@ class Mkt {
                 response: Response<Unit>,
             ) {
                 if (response.isSuccessful) {
-                    Log.d(mTag.Track, "identifyCustomer success")
+//                    Log.d(mTag.Track, "identifyCustomer success")
                     callback?.onSuccess("identify success")
                 } else {
-                    Log.d(mTag.Track, "identifyCustomer failed : ${response.code()}")
+//                    Log.d(mTag.Track, "identifyCustomer failed : ${response.code()}")
                     callback?.onFailed("identify failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
-                Log.d(mTag.Track, "identifyCustomer failed : ${t.message}")
+//                Log.d(mTag.Track, "identifyCustomer failed : ${t.message}")
                 callback?.onFailed("identify failed : ${t.message}")
             }
         })
@@ -443,17 +471,17 @@ class Mkt {
                 if (response.isSuccessful) {
                     PrefHelper.clearPref()
                     initialize(null)
-                    Log.d(mTag.Track, "anonymius success")
+//                    Log.d(mTag.Track, "anonymius success")
                     callback?.onSuccess("anonymius success")
 
                 } else {
-                    Log.d(mTag.Track, "anonymius failed : ${response.code()}")
+//                    Log.d(mTag.Track, "anonymius failed : ${response.code()}")
                     callback?.onFailed("anonymius failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
-                Log.d(mTag.Track, "anonymius failed : ${t.message}")
+//                Log.d(mTag.Track, "anonymius failed : ${t.message}")
                 callback?.onFailed("anonymius failed : ${t.message}")
             }
         })
@@ -479,16 +507,16 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     val res = response.body()!!
-                    Log.d(mTag.Track, "updateCustomer success")
+//                    Log.d(mTag.Track, "updateCustomer success")
                     callback?.onSuccess(res)
                 } else {
-                    Log.d(mTag.Track, "updateCustomer failed : ${response.code()}")
+//                    Log.d(mTag.Track, "updateCustomer failed : ${response.code()}")
                     callback?.onFailed("update failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<UpdateCustResModel>, t: Throwable) {
-                Log.d(mTag.Track, "updateCustomer failed : ${t.message}")
+//                Log.d(mTag.Track, "updateCustomer failed : ${t.message}")
                 callback?.onFailed("update failed : ${t.message}")
             }
         })
@@ -514,16 +542,16 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     val res = response.body()!!
-                    Log.d(mTag.Track, "consent success")
+//                    Log.d(mTag.Track, "consent success")
                     callback?.onSuccess(res.customerConsent)
                 } else {
-                    Log.d(mTag.Track, "consent failed : ${response.code()}")
+//                    Log.d(mTag.Track, "consent failed : ${response.code()}")
                     callback?.onFailed("consent failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<ConsentResponseModel>, t: Throwable) {
-                Log.d(mTag.Track, "consent failed : ${t.message}")
+//                Log.d(mTag.Track, "consent failed : ${t.message}")
                 callback?.onFailed("consent failed : ${t.message}")
             }
         })
@@ -549,16 +577,16 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     val res = response.body()!!
-                    Log.d(mTag.Track, "consent success")
+//                    Log.d(mTag.Track, "consent success")
                     callback?.onSuccess(res.consentId)
                 } else {
-                    Log.d(mTag.Track, "consent failed : ${response.code()}")
+//                    Log.d(mTag.Track, "consent failed : ${response.code()}")
                     callback?.onFailed("consent failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<SetConsentResponseModel>, t: Throwable) {
-                Log.d(mTag.Track, "consent failed : ${t.message}")
+//                Log.d(mTag.Track, "consent failed : ${t.message}")
                 callback?.onFailed("consent failed : ${t.message}")
             }
         })
@@ -584,16 +612,16 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     val res = response.body()!!
-                    Log.d(mTag.Track, "consent success")
+//                    Log.d(mTag.Track, "consent success")
                     callback?.onSuccess(res.consentId)
                 } else {
-                    Log.d(mTag.Track, "consent failed : ${response.code()}")
+//                    Log.d(mTag.Track, "consent failed : ${response.code()}")
                     callback?.onFailed("consent failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<SetConsentResponseModel>, t: Throwable) {
-                Log.d(mTag.Track, "consent failed : ${t.message}")
+//                Log.d(mTag.Track, "consent failed : ${t.message}")
                 callback?.onFailed("consent failed : ${t.message}")
             }
         })
@@ -618,16 +646,16 @@ class Mkt {
                 response: Response<Unit>,
             ) {
                 if (response.isSuccessful) {
-                    mLog.track(true, null)
+//                    mLog.track(true, null)
                     callback?.onSuccess("revoke success")
                 } else {
-                    mLog.track(false, response.code().toString())
+//                    mLog.track(false, response.code().toString())
                     callback?.onFailed("revoke failed : ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
-                mLog.track(false, t.message)
+//                mLog.track(false, t.message)
                 callback?.onFailed("revoke failed : ${t.message}")
             }
         })
