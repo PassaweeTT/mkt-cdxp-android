@@ -98,14 +98,14 @@ class Mkt {
 
         }
 
-        fun initialize(callback: MktCallBack<String>?, location: String?): Unit {
+        fun initialize(callback: MktCallBack<String>?): Unit {
             var param = InitialModel(
                 projId = sysMkt.projId!!,
                 hardId = "",
                 referrer = sysMkt.referrer,
                 cookie = PrefHelper.getPref("cookie") ?: "",
                 eventTime = Date(),
-                data = sysMkt.getGeneralEvent(location ?: ""),
+                data = sysMkt.getGeneralEvent(""),
                 session = SessionModel(
                     sessionId = PrefHelper.getPref("sessionId"),
                     sessionStart = PrefHelper.getPref("sessionStart")
@@ -116,7 +116,7 @@ class Mkt {
                 auto = sysMkt.auto,
                 visit = sysMkt.visit,
             )
-            sysMkt.initializeApp(param, callback, location)
+            sysMkt.initializeApp(param, callback)
         }
 
         fun systemTime(callback: MktCallBack<Date?>): Unit {
@@ -127,7 +127,6 @@ class Mkt {
             eventName: String,
             eventData: Map<String, Any>?,
             callback: MktCallBack<String?>?,
-            location: String?,
         ): Unit {
             if (eventName.isBlank()) {
                 callback?.onFailed("Event name is required")
@@ -140,7 +139,7 @@ class Mkt {
 
             var param: TrackParamModel = TrackParamModel(
                 cookie = PrefHelper.getPref("cookie") ?: "",
-                data = sysMkt.getGeneralEvent(location ?: ""),
+                data = sysMkt.getGeneralEvent(""),
                 eventName = eventName,
                 eventData = eventData
             )
@@ -151,12 +150,11 @@ class Mkt {
             hardId: String?,
             customerData: Map<String, Any>?,
             callback: MktCallBack<String?>?,
-            location: String?,
         ): Unit {
             val param: IdentifyModel = IdentifyModel(
                 hardId = hardId ?: "",
                 cookie = PrefHelper.getPref("cookie") ?: "",
-                data = sysMkt.getGeneralEvent(location ?: ""),
+                data = sysMkt.getGeneralEvent(""),
                 customerData = customerData
             )
             sysMkt.identifyCustomer(param, callback)
@@ -267,7 +265,6 @@ class Mkt {
     private fun initializeApp(
         param: InitialModel,
         callback: MktCallBack<String>?,
-        location: String?,
     ): Unit {
         val urlPath = getUrlProj()
 
@@ -445,7 +442,7 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     PrefHelper.clearPref()
-                    initialize(null, sysMkt.getRunningActivity())
+                    initialize(null)
                     Log.d(mTag.Track, "anonymius success")
                     callback?.onSuccess("anonymius success")
 
@@ -647,18 +644,18 @@ class Mkt {
         return generalMap.toMap()
     }
 
-    fun getRunningActivity(): String? {
-        val activityManager =
-            sysMkt.application!!.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-
-        val runningTaskInfoList = activityManager.getRunningTasks(1)
-
-        return if (runningTaskInfoList.isNotEmpty()) {
-            val runningTaskInfo = runningTaskInfoList[0]
-            runningTaskInfo.topActivity?.className
-        } else {
-            null
-        }
-    }
+//    fun getRunningActivity(): String? {
+//        val activityManager =
+//            sysMkt.application!!.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+//
+//        val runningTaskInfoList = activityManager.getRunningTasks(1)
+//
+//        return if (runningTaskInfoList.isNotEmpty()) {
+//            val runningTaskInfo = runningTaskInfoList[0]
+//            runningTaskInfo.topActivity?.className
+//        } else {
+//            null
+//        }
+//    }
 
 }
