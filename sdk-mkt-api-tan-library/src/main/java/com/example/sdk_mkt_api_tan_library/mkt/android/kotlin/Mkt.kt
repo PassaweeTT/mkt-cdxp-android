@@ -45,10 +45,7 @@ class Mkt {
     private var referrer: String = ""
     private var urlEndPoint: String = "https://api.mkt.com/"
 
-    private var isSetTimer: Boolean = false
-
     companion object {
-        private var application: Application? = null
         private var sysMkt = Mkt()
 
         fun clearPref() {
@@ -142,7 +139,7 @@ class Mkt {
                 return
             }
 
-            var param: TrackParamModel = TrackParamModel(
+            val param: TrackParamModel = TrackParamModel(
                 cookie = PrefHelper.getPref("cookie") ?: "",
                 data = sysMkt.getGeneralEvent(""),
                 eventName = eventName,
@@ -310,7 +307,7 @@ class Mkt {
             ) {
                 if (response.isSuccessful) {
                     val initRes = response.body()!!
-                    PrefHelper.setPref("cookie", initRes.cookie ?: "")
+                    PrefHelper.setPref("cookie", initRes.cookie)
                     PrefHelper.setPref("sessionId", initRes.session.sessionId ?: "")
                     PrefHelper.setPref(
                         "sessionStart",
@@ -322,7 +319,7 @@ class Mkt {
                             ?: "")
 
                     if (sysMkt.auto) {
-                        setTimerUpdateSession(60000)
+                        setTimerUpdateSession()
                     }
 
 //                    mLog.init(true, null)
@@ -372,14 +369,14 @@ class Mkt {
         })
     }
 
-    private fun setTimerUpdateSession(delayTime: Long) {
+    private fun setTimerUpdateSession() {
         val timer = Timer()
 
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 updateSessionStart()
             }
-        }, delayTime, 60000)
+        }, 60000, 60000)
     }
 
     private fun updateSessionStart() {
