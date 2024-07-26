@@ -49,12 +49,74 @@ class Mkt {
     companion object {
         private var sysMkt = Mkt()
 
+        fun setConfig(
+            projId: Long?,
+            appKey: String?,
+            auto: Boolean?,
+            visit: Boolean?,
+            defaultProperties: Map<String, Any>?,
+            referrer: String?,
+            urlEndPoint: String?,
+        ) {
+            if (projId != null)
+                sysMkt.projId = projId
+            if (!appKey.isNullOrBlank())
+                sysMkt.appKey = appKey
+            if (auto != null)
+                sysMkt.auto = auto
+            if (visit != null)
+                sysMkt.visit = visit
+            if (defaultProperties != null)
+                sysMkt.defaultProperties = defaultProperties
+            if (!referrer.isNullOrBlank())
+                sysMkt.referrer = referrer
+            if (!urlEndPoint.isNullOrBlank())
+                sysMkt.urlEndPoint = urlEndPoint
+        }
+
         fun clearPref() {
             PrefHelper.clearPref()
         }
 
         fun getPref(): Map<String, *>? {
             return PrefHelper.getAllPref()
+        }
+
+        fun appStart(application: Application, referrer: String?) {
+            sysMkt.application = application
+            PrefHelper.setApplication(application)
+
+            val fileName = "cnx-mkt-config.json"
+            val jsonObject = JsonHelper.readJsonFromAssets(application, fileName)
+
+            if (!referrer.isNullOrBlank()) {
+                sysMkt.referrer = referrer
+            }
+
+            if (jsonObject != null) {
+                val projectConfig = jsonObject.getJSONObject("project_config")
+                sysMkt.urlEndPoint = "${projectConfig.getString("url_end_point")}api/Track/"
+                sysMkt.appKey = projectConfig.getString("app_key")
+                sysMkt.projId = projectConfig.getLong("project_id")
+                sysMkt.auto = projectConfig.getJSONObject("track").getBoolean("auto")
+                sysMkt.visit = projectConfig.getJSONObject("track").getBoolean("visit")
+                val defaultPropertiesJson =
+                    projectConfig.getJSONObject("track").getJSONObject("default_properties")
+
+                val defaultPropertiesMap = JsonHelper.jsonObjectToMap(defaultPropertiesJson)
+                val generalMap = mutableMapOf<String, Any>()
+                generalMap["device"] = MktUtils.getDeviceInfo()
+                generalMap["os"] = MktUtils.getOsInfo()
+                generalMap["browser"] = ""
+                generalMap["www_location"] = ""
+
+                generalMap.putAll(defaultPropertiesMap)
+
+                sysMkt.defaultProperties = generalMap
+            } else {
+                Log.d(mTag.Mkt, "config file not found")
+                throw Exception("config file not found")
+            }
         }
 
         fun appReady(application: Application, referrer: String?) {
@@ -93,8 +155,6 @@ class Mkt {
                 Log.d(mTag.Mkt, "config file not found")
                 throw Exception("config file not found")
             }
-
-
         }
 
         fun initialize(callback: MktCallBack<String>?): Unit {
