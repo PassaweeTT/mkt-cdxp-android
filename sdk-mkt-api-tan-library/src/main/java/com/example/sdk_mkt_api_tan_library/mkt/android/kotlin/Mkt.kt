@@ -322,8 +322,10 @@ class Mkt {
     }
 
     private fun trackPageVisit(callback: MktCallBack<String?>): Unit {
+        val urlPath = getUrlProj()
+
         val retrofit = Retrofit.Builder()
-            .baseUrl(sysMkt.urlEndPoint)
+            .baseUrl(urlPath)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
