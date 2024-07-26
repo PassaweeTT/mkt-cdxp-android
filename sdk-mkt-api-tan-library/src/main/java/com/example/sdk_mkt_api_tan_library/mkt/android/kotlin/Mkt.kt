@@ -33,6 +33,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.math.log
 
 class Mkt {
     private var application: Application? = null
@@ -239,7 +240,7 @@ class Mkt {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
-
+        Log.d(mTag.Mkt, retrofit.getSystemTime().request().url().toString())
         val call = retrofit.getSystemTime()
         call.enqueue(object : Callback<SystemTimeModel> {
             override fun onResponse(

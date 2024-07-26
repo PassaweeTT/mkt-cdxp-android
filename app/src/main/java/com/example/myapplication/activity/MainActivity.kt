@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Mkt.initialize(null, null)
+        Mkt.initialize(null)
 
         val btnTime: Button = findViewById(R.id.btnSystemTime)
         btnTime.setOnClickListener {
@@ -28,12 +28,14 @@ class MainActivity : AppCompatActivity() {
         val btnAddToCart: Button = findViewById(R.id.btnAddToCart)
         btnAddToCart.setOnClickListener {
             Mkt.track(
-                "cart_update", mapOf(
+                eventName = "cart_update",
+                eventData = mapOf(
                     "action" to "Add to cart",
                     "item_id" to "nike-shoes-123",
                     "brand" to "Nike",
                     "price" to 10.99
-                ), null, null
+                ),
+                callback = null
             )
         }
 
@@ -82,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         val btnLogin: Button = findViewById(R.id.btnLogin)
         btnLogin.setOnClickListener {
-            Mkt.identify("sawada@vongola.net", null, null, null)
+            Mkt.identify("sawada@vongola.net", null, null)
         }
 
         val btnLogout: Button = findViewById(R.id.btnLogout)
